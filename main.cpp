@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 #include "lib/tinyxml2/tinyxml2.h"
 #include "lib/dirent/dirent.h" // TODO include only on windows
 
@@ -16,14 +17,19 @@ using namespace tinyxml2;
 
 int main() {
     // Configure here which fields (=> xml-nodes) to output, like `"Keywords"` for `<Keywords />`
-    const std::vector<std::string> fieldsToOutput = {"Vorname",
-                                                     "Nachname",
-                                                     "Titel",
-                                                     "Semester",
-                                                     "Kurzfassung",
-                                                     "Schlagwoerter"}; // TODO create external option
-    const std::string outputFormat = "HTML"; // TODO create external option AND switch down below for different filetypes
-                                                                        // Missing: Bachelor- or Masterthesis (wichtig)
+    // TODO create external options
+    const char* defaultFirstChildElement = "fields";
+    const std::vector<std::string> defaultFieldsToOutput = {"Vorname",
+                                                            "Nachname",
+                                                            "Titel",
+                                                            "AbschlussarbeitArt",
+                                                            "Semester",
+                                                            "Kurzfassung",
+                                                            "Schlagwoerter"};
+    // const int defaultOutputFormat = 0; // TODO multiple filetypes
+    const std::map<std::string,std::string> AbschlussarbeitArt = {{"1", "Abschlussarbeit"},
+                                                                  {"2", "Bachelorarbeit"},
+                                                                  {"3", "Masterarbeit"}}; // TODO actually use
 
     std::string dirToRead;
     std::cout << "Pfad zum Ordner:" << std::endl;
@@ -33,42 +39,48 @@ int main() {
     DIR *dir;
     struct dirent *ent;
     if ((dir = opendir (dirToRead.c_str())) != NULL) {
-        ofstream outputFile;
-        outputFile.open("outputs.rtf"); // TODO path; default path; path option
-                                        // actual path: C:\Users\Sarah\CLionProjects\PoP_PDF_project\cmake-build-debug\outputs.rtf
+        ofstream outputFile(dirToRead + "/outputs.html"); // TODO path is currently dirToRead; path option?
 
-        bool first = true;
+        outputFile << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body><h1>Abschlussarbeiten</h1>";
+
+//        bool first = true; // was for RTF
 
         while ((ent = readdir (dir)) != NULL) {
-            // TODO check if XML
-            if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, "..") || !strcmp(ent->d_name, "?")) { // TODO fix ? for filenames with strange chars, like "B0144 Schr÷der.xml"
-                // do nothing of ".", ".." or "?"
-            } else {
-                if (!first) {
-                    outputFile << std::endl << std::endl;
-                } else {
-                    first = false;
-                }
+            const string fileName(ent->d_name); // TODO fix "?" for filenames with strange chars, like "B0144 Schr÷der.xml"
+
+            if (fileName.find(".xml") != std::string::npos) {
+//                if (!first) { // was for RTF
+//                    outputFile << std::endl << std::endl;
+//                } else {
+//                    first = false;
+//                }
 
                 std::cout << "File: " << ent->d_name << std::endl;
 
                 XMLDocument xmlDocument;
-                xmlDocument.LoadFile( (dirToRead + "\\" + ent->d_name).c_str() );
-                const XMLElement* fields = xmlDocument.FirstChildElement("fields"); // TODO check if fields exist
+                xmlDocument.LoadFile( (dirToRead + "/" + ent->d_name).c_str() );
 
-                for (auto value : fieldsToOutput) {
+                const XMLElement* fields = xmlDocument.FirstChildElement(defaultFirstChildElement); // e.g. "fields"
+
+                outputFile << "<ul>" << std::endl; // HTML-element unordered list (ul)
+
+                for (auto value : defaultFieldsToOutput) {
+                    string currentField = "";
                     if (fields->FirstChildElement(value.c_str())->GetText() != nullptr) {
-                        const char* currentField = fields->FirstChildElement(value.c_str())->GetText();
-                        std::cout << value << ": " << currentField << std::endl;
-                        outputFile << value << ": " << currentField << std::endl;
-                    } else {
-                        std::cout << value << ": " << std::endl;
-                        outputFile << value << ": " << std::endl;
+                        currentField = fields->FirstChildElement(value.c_str())->GetText();
                     }
+                    std::cout << value << ": " << currentField << std::endl;
+                    outputFile << "<li><strong>" << value << ":</strong> " << currentField << "</li>" << std::endl;
                 }
+
+                outputFile << "</ul>" << std::endl; // end ul
+            } else {
+                // do nothing of ".", ".." or "?" or doesnt contain ".xml"
             }
         }
-        closedir (dir);
+        closedir (dir); // close dir after reading
+
+        outputFile << "</body></html>";
         outputFile.close();
     } else {
         /* could not open directory */
