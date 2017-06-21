@@ -6,8 +6,9 @@
 
 /*
  * Author: Sarah Koziol
- *
- * Auswertung von PDF-Formularen
+ * Date: 05.06.2017
+ * Project: Auswertung von PDF-Formularen
+ * For: Prozessorientierte Programmierung (Sommersemester 2016)
  */
 
 using namespace std;
