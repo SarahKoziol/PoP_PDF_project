@@ -22,6 +22,7 @@ int main() {
                                                      "Kurzfassung",
                                                      "Schlagwoerter"}; // TODO create external option
     const std::string outputFormat = "HTML"; // TODO create external option AND switch down below for different filetypes
+                                                                        // Missing: Bachelor- or Masterthesis (wichtig)
 
     std::string dirToRead;
     std::cout << "Pfad zum Ordner:" << std::endl;
@@ -33,6 +34,7 @@ int main() {
     if ((dir = opendir (dirToRead.c_str())) != NULL) {
         ofstream outputFile;
         outputFile.open("outputs.rtf"); // TODO path; default path; path option
+                                        // actual path: C:\Users\Sarah\CLionProjects\PoP_PDF_project\cmake-build-debug\outputs.rtf
 
         bool first = true;
 
