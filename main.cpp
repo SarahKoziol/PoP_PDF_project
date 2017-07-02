@@ -16,20 +16,26 @@ using namespace std;
 using namespace tinyxml2;
 
 int main(int argc, char* argv[]) {
-    string firstChildElement = "";
+    std::string firstChildElement = "";
+    std::string dirToRead = "";
 
     if (argc > 1) { // the first parameter is always the (path to the) executable
-        // if there are more then one parameter
+        // if there is more than one parameter
 
-        int i;
-        for (i = 1; i < argc; ++i) {
-            if (strncmp("-", argv[i], 1) == 0) {
-                if (strcmp("-firstChildElement", argv[i]) == 0) {
-                    firstChildElement = argv[i+1];
+        for (int i = 1; i < argc; ++i) {
+            if (strncmp("-", argv[i], 1) == 0) { // if the parameter starts with "-"
+                if (strcmp("-firstChildElement", argv[i]) == 0) { // if there is a parameter "-firstChildElement"
+                    firstChildElement = argv[i+1]; // set firstChildElement to the next parameter (which should be the value)
+                    i++; // skipping argv[i+1] as this is assumed as the value
+                } else if (strcmp("-dirToRead", argv[i]) == 0) { // if there is a parameter "-dirToRead"
+                    dirToRead = argv[i+1]; // set dirToRead to the next parameter (which should be the value)
                     i++;
                 }
             }
         }
+
+        // the most extensive call would be e.g.
+        // ./PoP_PDF_project.exe -firstChildElement fields -dirToRead /path/to/xmls
     }
 
     // defaultFirstChildElement defines the root XML-element for all the fields
@@ -50,15 +56,16 @@ int main(int argc, char* argv[]) {
                                                                   {"2", "Bachelorarbeit"},
                                                                   {"3", "Masterarbeit"}};
 
-    std::string dirToRead;
-    std::cout << "Pfad zum Ordner:" << std::endl;
-    std::getline (cin, dirToRead);
+    if (dirToRead.length() == 0) { // if dirToRead hasnt been set by parameter, read it from cin (terminal input)
+        std::cout << "Pfad zum Ordner:" << std::endl;
+        std::getline (cin, dirToRead);
+    }
 //    std::cout << "Eingegebner Pfad: " << dirToRead <<std::endl;
 
     DIR *dir;
     struct dirent *ent;
     if ((dir = opendir (dirToRead.c_str())) != NULL) {
-        ofstream outputFile(dirToRead + "/outputs.html"); // TODO path is currently dirToRead; path option?
+        ofstream outputFile(dirToRead + "/outputs.html");
 
         outputFile << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body><h1>Abschlussarbeiten</h1>";
 
@@ -103,6 +110,10 @@ int main(int argc, char* argv[]) {
         /* could not open directory */
         perror ("");
         return EXIT_FAILURE;
+    }
+
+    if (argc == 1) { // if there are no parameter - the first parameter is always the (path to the) executable
+        system("pause");
     }
 
     return 0;
