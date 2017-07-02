@@ -15,11 +15,25 @@
 using namespace std;
 using namespace tinyxml2;
 
-int main() {
-    // TODO create external options for all these variables
+int main(int argc, char* argv[]) {
+    string firstChildElement = "";
+
+    if (argc > 1) { // the first parameter is always the (path to the) executable
+        // if there are more then one parameter
+
+        int i;
+        for (i = 1; i < argc; ++i) {
+            if (strncmp("-", argv[i], 1) == 0) {
+                if (strcmp("-firstChildElement", argv[i]) == 0) {
+                    firstChildElement = argv[i+1];
+                    i++;
+                }
+            }
+        }
+    }
 
     // defaultFirstChildElement defines the root XML-element for all the fields
-    const char* defaultFirstChildElement = "fields";
+    const char* defaultFirstChildElement = firstChildElement.length() > 0 ? firstChildElement.c_str() : "fields";
 
     // defaultFieldsToOutput defines the selected XML-elements e.g. `"Keywords"` for `<Keywords />`
     // and sets the order, independent of the order of the input XML
