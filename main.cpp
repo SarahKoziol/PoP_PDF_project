@@ -16,9 +16,13 @@ using namespace std;
 using namespace tinyxml2;
 
 int main() {
-    // Configure here which fields (=> xml-nodes) to output, like `"Keywords"` for `<Keywords />`
-    // TODO create external options
+    // TODO create external options for all these variables
+
+    // defaultFirstChildElement defines the root XML-element for all the fields
     const char* defaultFirstChildElement = "fields";
+
+    // defaultFieldsToOutput defines the selected XML-elements e.g. `"Keywords"` for `<Keywords />`
+    // and sets the order, independent of the order of the input XML
     const std::vector<std::string> defaultFieldsToOutput = {"Vorname",
                                                             "Nachname",
                                                             "Titel",
@@ -26,10 +30,11 @@ int main() {
                                                             "Semester",
                                                             "Kurzfassung",
                                                             "Schlagwoerter"};
-    // const int defaultOutputFormat = 0; // TODO multiple filetypes
+
+    // this map AbschlussarbeitArt maps the actual values of AbschlussarbeitArt to the corresponding strings
     const std::map<std::string,std::string> AbschlussarbeitArt = {{"1", "Abschlussarbeit"},
                                                                   {"2", "Bachelorarbeit"},
-                                                                  {"3", "Masterarbeit"}}; // TODO actually use
+                                                                  {"3", "Masterarbeit"}};
 
     std::string dirToRead;
     std::cout << "Pfad zum Ordner:" << std::endl;
@@ -43,18 +48,11 @@ int main() {
 
         outputFile << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"/></head><body><h1>Abschlussarbeiten</h1>";
 
-//        bool first = true; // was for RTF
-
         while ((ent = readdir (dir)) != NULL) {
-            const string fileName(ent->d_name); // TODO fix "?" for filenames with strange chars, like "B0144 Schr÷der.xml"
+            // TODO returns "?" for filenames with strange chars, like "B0144 Schr÷der.xml", because of tinyxml2 and unicode is hard
+            const string fileName(ent->d_name);
 
             if (fileName.find(".xml") != std::string::npos) {
-//                if (!first) { // was for RTF
-//                    outputFile << std::endl << std::endl;
-//                } else {
-//                    first = false;
-//                }
-
                 std::cout << "File: " << ent->d_name << std::endl;
 
                 XMLDocument xmlDocument;
@@ -69,13 +67,18 @@ int main() {
                     if (fields->FirstChildElement(value.c_str())->GetText() != nullptr) {
                         currentField = fields->FirstChildElement(value.c_str())->GetText();
                     }
+
+                    if (value == "AbschlussarbeitArt") {
+                        currentField = AbschlussarbeitArt.find(currentField)->second;
+                    }
+
                     std::cout << value << ": " << currentField << std::endl;
                     outputFile << "<li><strong>" << value << ":</strong> " << currentField << "</li>" << std::endl;
                 }
 
                 outputFile << "</ul>" << std::endl; // end ul
             } else {
-                // do nothing of ".", ".." or "?" or doesnt contain ".xml"
+                // do nothing if ".", ".." or "?" (strange char in filename) or doesnt contain ".xml"
             }
         }
         closedir (dir); // close dir after reading
