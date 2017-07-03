@@ -33,6 +33,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: ".\cmake-build-debug\PoP_PDF_project.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\cygwin64\bin\cygwin1.dll"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

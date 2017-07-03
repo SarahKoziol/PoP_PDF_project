@@ -1,4 +1,4 @@
-# PoP_PDF_project
+# PoP_PDF_project von Sarah Koziol (2017)
 
 ## Aufgabenstelllung
 
@@ -12,4 +12,4 @@
 
 - ~~Priorität 1: Daten speichern --> sortierung (falls xml andere reihenfolge hat)~~ ✓
 - ~~Priorität 2: std::map~~ ✓
-- Priorität 3: über konsole speicherort und gewünschte felder wählen (default vorgegeben)
+- Priorität 3: über konsole speicherort und gewünschte felder wählen (default vorgegeben)✓
